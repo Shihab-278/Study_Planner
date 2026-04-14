@@ -19,25 +19,28 @@ class GoogleController extends Controller
 
     public function callback(): RedirectResponse
     {
-        $googleUser = Socialite::driver('google')->user();
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
-        $user = User::where('email', $googleUser->getEmail())->first();
+            $user = User::where('email', $googleUser->getEmail())->first();
 
-        if ($user) {
+            if ($user) {
+                Auth::login($user);
+                return redirect()->route('study.dashboard');
+            }
+
+            $user = User::create([
+                'name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'password' => Hash::make(Str::random(24)),
+                'role' => 'student',
+            ]);
+
             Auth::login($user);
 
             return redirect()->route('study.dashboard');
+        } catch (\Exception $e) {
+            return redirect('/login')->with('error', 'Google login failed!');
         }
-
-        $user = User::create([
-            'name' => $googleUser->getName(),
-            'email' => $googleUser->getEmail(),
-            'password' => Hash::make(Str::random(24)),
-            'role' => 'student',
-        ]);
-
-        Auth::login($user);
-
-        return redirect()->route('study.dashboard');
     }
 }
