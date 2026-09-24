@@ -269,11 +269,6 @@ Ensure the following in production:
 
 ---
 
-## 📄 License
-
-This project is open-sourced under the [MIT License](LICENSE).
-
----
 
 <p align="center">
   Built with ❤️ using Laravel 12
